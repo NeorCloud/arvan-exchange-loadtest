@@ -185,3 +185,11 @@ class Trader3(FastHttpUser):
     @task
     def get_bitcoin_page(self):
         self.client.get("/token/bitcoin")
+
+
+class ReadonlyUser(FastHttpUser):
+    host = os.getenv('HOST', 'http://localhost:8000')
+
+    @task
+    def get_admin_page(self):
+        self.client.get('/admin/login/?next=/admin/')
