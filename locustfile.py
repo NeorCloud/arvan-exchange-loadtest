@@ -4,6 +4,19 @@ from locust import task
 from locust import FastHttpUser
 
 
+def login(user, username, password):
+    response = user.client.get("/login/")
+    csrftoken = response.cookies["csrftoken"]
+    user.client.post(
+        "/login/",
+        data={
+            "username": username,
+            "password": password,
+            "csrfmiddlewaretoken": csrftoken,
+        },
+    )
+
+
 class Trader1(FastHttpUser):
     host = os.getenv("HOST", "http://localhost:8000")
 
@@ -13,12 +26,7 @@ class Trader1(FastHttpUser):
 
     @task
     def login(self):
-        self.client.get("/login/")
-        self.client.post(
-            "/login/",
-            data={"username": "trader", "password": "ar_exchange"},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
-        )
+        login(self, "trader", "ar_exchange")
 
     @task
     def profile(self):
@@ -26,7 +34,7 @@ class Trader1(FastHttpUser):
 
     @task
     def deposit(self):
-        self.client.get("/profile/deposit/")
+        response = self.client.get("/profile/deposit/")
         self.client.post(
             "/profile/deposit/",
             data={
@@ -34,21 +42,26 @@ class Trader1(FastHttpUser):
                 "card_number": "1111222233334444",
                 "card_ccv": "123",
                 "amount": "1000",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
             },
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
         )
 
     @task
     def get_tether_page(self):
-        self.client.get("/token/tether/")
-    
+        self.client.get("/token/tether")
+
     @task
     def buy_tether(self):
+        response = self.client.get("/token/tether")
         self.client.post(
-            "/token/tether/",
-            data={"amount": "30", "buy_token": ""},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
+            "/token/tether",
+            data={
+                "amount": "30",
+                "buy_token": "",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
+            },
         )
+
 
 class Trader2(FastHttpUser):
     host = os.getenv("HOST", "http://localhost:8000")
@@ -59,12 +72,7 @@ class Trader2(FastHttpUser):
 
     @task
     def login(self):
-        self.client.get("/login/")
-        self.client.post(
-            "/login/",
-            data={"username": "trader2", "password": "ar_exchange"},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
-        )
+        login(self, "trader2", "ar_exchange")
 
     @task
     def profile(self):
@@ -72,7 +80,7 @@ class Trader2(FastHttpUser):
 
     @task
     def deposit(self):
-        self.client.get("/profile/deposit/")
+        response = self.client.get("/profile/deposit/")
         self.client.post(
             "/profile/deposit/",
             data={
@@ -80,49 +88,62 @@ class Trader2(FastHttpUser):
                 "card_number": "1111222233334444",
                 "card_ccv": "123",
                 "amount": "10000",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
             },
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
         )
 
     @task
     def get_tether_page(self):
-        self.client.get("/token/tether/")
-    
+        self.client.get("/token/tether")
+
     @task
     def buy_tether(self):
+        response = self.client.get("/token/tether")
         self.client.post(
-            "/token/tether/",
-            data={"amount": "300", "buy_token": ""},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
+            "/token/tether",
+            data={
+                "amount": "300",
+                "buy_token": "",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
+            },
         )
 
     @task
     def sell_tether(self):
+        response = self.client.get("/token/tether")
         self.client.post(
-            "/token/tether/",
-            data={"amount": "30", "sell_token": ""},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
+            "/token/tether",
+            data={
+                "amount": "30",
+                "sell_token": "",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
+            },
         )
 
     @task
     def get_ethereum_page(self):
-        self.client.get("/token/ethereum/")
+        self.client.get("/token/ethereum")
 
     @task
     def buy_ethereum(self):
+        response = self.client.get("/token/ethereum")
         self.client.post(
-            "/token/ethereum/",
-            data={"amount": "10", "buy_token": ""},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
+            "/token/ethereum",
+            data={
+                "amount": "10",
+                "buy_token": "",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
+            },
         )
-    
+
     @task
     def sell_ethereum(self):
+        response = self.client.get("/token/ethereum")
         self.client.post(
-            "/token/ethereum/",
-            data={"amount": "1", "sell_token": ""},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
+            "/token/ethereum",
+            data={"amount": "1", "sell_token": "", "csrfmiddlewaretoken": response.cookies["csrftoken"]},
         )
+
 
 class Trader3(FastHttpUser):
     host = os.getenv("HOST", "http://localhost:8000")
@@ -133,12 +154,7 @@ class Trader3(FastHttpUser):
 
     @task
     def login(self):
-        self.client.get("/login/")
-        self.client.post(
-            "/login/",
-            data={"username": "trader3", "password": "ar_exchange"},
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
-        )
+        login(self, "trader3", "ar_exchange")
 
     @task
     def profile(self):
@@ -146,7 +162,7 @@ class Trader3(FastHttpUser):
 
     @task
     def deposit(self):
-        self.client.get("/profile/deposit/")
+        response = self.client.get("/profile/deposit/")
         self.client.post(
             "/profile/deposit/",
             data={
@@ -154,18 +170,18 @@ class Trader3(FastHttpUser):
                 "card_number": "1111222233334444",
                 "card_ccv": "123",
                 "amount": "1500",
+                "csrfmiddlewaretoken": response.cookies["csrftoken"],
             },
-            headers={"X-CSRFToken": self.client.cookies["csrftoken"]},
         )
 
     @task
     def get_tether_page(self):
-        self.client.get("/token/tether/")
-    
+        self.client.get("/token/tether")
+
     @task
     def get_ethereum_page(self):
-        self.client.get("/token/ethereum/")
+        self.client.get("/token/ethereum")
 
     @task
     def get_bitcoin_page(self):
-        self.client.get("/token/bitcoin/")
+        self.client.get("/token/bitcoin")
